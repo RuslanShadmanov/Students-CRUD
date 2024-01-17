@@ -1,12 +1,20 @@
 import React from 'react'
 import { Button,Input } from 'reactstrap'
 
-export default function Search() {
+export default function Search({ searchQuery, setSearchQuery }) {
   return (
     <>
-    <Button className='' color ="danger">x</Button>
-      <Input placeholder="Search..." />
-      </>
-  )
-  
+      {searchQuery && (
+        <Button className="me-1" color="danger" onClick={()=>setSearchQuery("")}>
+          x
+        </Button>
+      )}
+
+      <Input
+        value={searchQuery}
+        onChange={(event) => setSearchQuery(event.target.value)}
+        placeholder="Search..."
+      />
+    </>
+  );
 }
