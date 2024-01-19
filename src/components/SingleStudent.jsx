@@ -10,6 +10,7 @@ export default function SingleStudent({
   country,
   handleStudentDelete,
   id,
+  toggle,
 }) {
   return (
     <tr>
@@ -25,7 +26,7 @@ export default function SingleStudent({
         <Button>
           <i className="fa fa-pencil"></i>
         </Button>
-        <Button color="danger" className="mx-2" onClick={()=>handleStudentDelete(id)}>
+        <Button color="danger" className="mx-2" onClick={()=>toggle(id)}>
           <i className="fa fa-trash"></i>
         </Button>
 

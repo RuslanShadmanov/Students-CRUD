@@ -1,38 +1,53 @@
-import React, { useEffect,useState } from 'react'
-import { Container, Table,Spinner } from "reactstrap";
-import  {fetchData} from './utils/apiCalls/getData';
-import SingleStudent from './SingleStudent';
-import { deleteData } from './utils/apiCalls/deleteData';
+import React, { useEffect, useState } from "react";
+import { Container, Table, Spinner } from "reactstrap";
+import { fetchData } from "./utils/apiCalls/getData";
+import SingleStudent from "./SingleStudent";
+import { deleteData } from "./utils/apiCalls/deleteData";
+import AppModal from "./AppModal";
 
-export default function Students() {
-  const [students, setStudents]= useState([]);
-  const [isLoading, setIsLoading]= useState(true);
-  const fetchAndSetState = async()=>{
-     setIsLoading(true)
-    
-    setStudents(await fetchData())
+export default function Students({ searchQuery }) {
+  const [students, setStudents] = useState([]);
+  const [stId, setStId] = useState(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [modal, setModal] = useState(false);
+
+  const toggle = (id) => {
+    setModal(!modal);
+    setStId(id);
+  };
+
+  const fetchAndSetState = async () => {
+    setIsLoading(true);
+
+    setStudents(await fetchData());
     setIsLoading(false);
   };
 
-  useEffect(()=>{
-    
+  useEffect(() => {
     // fetchData().then((data)=>setStudents(data))
     // IIFE (imediately invoke function expression) (async()=>{setStudents(await fetchData())})()
-   fetchAndSetState();
-  },[])
+    fetchAndSetState();
+  }, []);
 
-  const handleStudentDelete =(id)=>{
-    deleteData(id).then((data)=> {console.log("Successfulle deleted student", data)
-    fetchAndSetState()
-  })
-  }
+  const handleStudentDelete = (id) => {
+    deleteData(id).then((data) => {
+      console.log("Successfulle deleted student", data);
+      fetchAndSetState();
+    });
+  };
+
+  const filteredStudents = students.filter(
+    (student) =>
+      student.fname.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      student.lname.toLowerCase().includes(searchQuery.toLowerCase())
+  );
 
   return (
-    <Container className='border p-2'>
-      {
-        students.length === 0 && isLoading ? (  <Spinner color="primary">
-  Loading...
-</Spinner>) :(<Table bordered hover responsive>
+    <Container className="border p-2">
+      {filteredStudents.length === 0 && isLoading ? (
+        <Spinner color="primary">Loading...</Spinner>
+      ) : (
+        <Table bordered hover responsive>
           <thead>
             <tr>
               <th>#</th>
@@ -45,23 +60,26 @@ export default function Students() {
             </tr>
           </thead>
           <tbody>
-            {students.map((student,index)=>{
+            {filteredStudents.map((student, index) => {
               return (
                 <SingleStudent
+                  toggle={toggle}
                   handleStudentDelete={handleStudentDelete}
                   key={student.id}
                   {...student}
                   index={index}
                 />
               );
-             
-              })}
-            
+            })}
           </tbody>
-        </Table>)
-      }
-      
-        
-      </Container>
-  )
+        </Table>
+      )}
+      <AppModal
+        stId={stId}
+        modal={modal}
+        toggle={toggle}
+        handleStudentDelete={handleStudentDelete}
+      />
+    </Container>
+  );
 }
